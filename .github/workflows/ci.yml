@@ -40,6 +40,6 @@ jobs:
 
       - name: Test with pytest
         env:
-          DJANGO_SETTINGS_MODULE: project.settings
+          DJANGO_SETTINGS_MODULE: skin_app.settings
           SECRETS_FILE: .confidential/ci.json
         run: poetry run pytest --cov . -n 2
