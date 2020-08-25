@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Product Search
+{% endblock %}
+
+{% block main %}
+  <form action="/product_search/" method="post">
+        {% csrf_token %}
+        {{ form }}
+    <input type="submit" value="Search">
+  </form>
+
+{% endblock %}

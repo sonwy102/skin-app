@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Product Search
+{% endblock %}
+
+{% block main %}
+
+<form action="/product_search/" method="post">
+    {% csrf_token %}
+    {{ form }}
+<input type="submit" value="Search">
+</form>
+
+  <table class="table table-striped alignleft">
+    <thead>
+      <tr>
+        <th>Brand</th>
+        <th>Name</th>
+        <th>Image</th>
+      </tr>
+    </thead>
+
+    <tbody>
+            {% for obj in productdata %}
+                <tr>
+                    <td>{{ obj.brand.name }}</td>
+                    <td>{{ obj.name }}</td>
+                    <td>{{ obj.img}}</td>
+                </tr>
+
+            {% endfor %}
+
+      </tbody>
+    </table>
+{% endblock %}

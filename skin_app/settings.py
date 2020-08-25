@@ -11,13 +11,9 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-from confidential import SecretsManager
+import json
+import logging.config
 
-confidential = SecretsManager(
-    secrets_file_default=".confidential/default.json",
-    secrets_file=os.environ.get("SECRETS_FILE"),
-    region_name="us-east-1",
-)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -27,12 +23,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = confidential["SECRET_KEY"]
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+
+# Google custom search API key and cx
+API_KEY = os.getenv('API_KEY')
+CX = os.getenv('CX_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = confidential["DEBUG"]
+DEBUG = os.getenv('DEBUG', False)
 
-ALLOWED_HOSTS = confidential["ALLOWED_HOSTS"]
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1').split(' ')
 
 
 # Application definition
@@ -44,6 +44,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_extensions",
+    "storages",
+    "product_search.apps.ProductSearchConfig",
+    "rest_framework"
 ]
 
 MIDDLEWARE = [
@@ -58,10 +62,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "skin_app.urls"
 
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [TEMPLATE_DIR],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -80,8 +86,21 @@ WSGI_APPLICATION = "skin_app.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {"default": confidential["DATABASE"]}
-
+DATABASES = {
+    "default": {
+        'ENGINE': 'django.db.backends.{}'.format(
+             os.getenv('DATABASE_ENGINE', 'postgresql')
+        ),
+        'NAME': os.getenv('DATABASE_NAME', 'skin'),
+        'USER': os.getenv('DATABASE_USERNAME', 'testuser1'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'train'),
+        'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
+        'PORT': os.getenv('DATABASE_PORT', 5432),
+        'OPTIONS': json.loads(
+            os.getenv('DATABASE_OPTIONS', '{}')
+        ),
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -114,3 +133,37 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = "/static/"
+
+
+# Logging Configuration
+
+# Clear prev config
+LOGGING_CONFIG = None
+
+# Get loglevel from env
+LOGLEVEL = os.getenv('DJANGO_LOGLEVEL', 'info').upper()
+
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            'format': '%(asctime)s %(levelname)s [%(name)s:%(lineno)s] %(module)s %(process)d %(thread)d %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console',
+        },
+    },
+    'loggers': {
+        '': {
+            'level': LOGLEVEL,
+            'handlers': ['console',],
+        },
+    },
+})
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
