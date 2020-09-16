@@ -10,13 +10,13 @@ skin.io is a simple yet comprehensive way to track your skin health over time. A
 
 ## Mock-ups
 
-![Image of product_search](/Users/wooyangson/dev/skin-app/static/product_search.JPG)
+![Image of product_search](static/product_search.JPG)
 
 
-![Image of dashboard](/Users/wooyangson/dev/skin-app/static/dashboard.JPG)
+![Image of dashboard](static/dashboard.JPG)
 
 
-![Image of add_routine](/Users/wooyangson/dev/skin-app/static/add_routine.JPG)
+![Image of add_routine](static/add_routine.JPG)
 
 ## `skin_app`
 
